@@ -1,0 +1,12 @@
+{
+  "name": "learn-sequelize",
+  "version": "1.0.0",
+  "description": "시퀼라이져 튜토리얼",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+	"start": "nodemon app"
+  },
+  "author": "",
+  "license": "ISC"
+}

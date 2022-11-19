@@ -1,0 +1,95 @@
+const express = require('express');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const dotenv = require('dotenv');
+const path = require('path');
+
+const indexRouter = require('./routes');
+const userRouter = require('./routes/user');
+
+const PORT = 8080;
+
+//.env 파일을 읽어서 process.env로 만듦 process.env.COOKIE_SECRET할당
+dotenv.config();
+
+const app = express();
+app.set('port', process.env.PORT || PORT);
+
+app.use(morgan('combined'));
+app.use('/', express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(session({
+  resave: false,
+  saveUninitialized: false,
+  secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+  },
+  name: 'session-cookie',
+}));
+
+app.use('/', indexRouter);
+app.use('/user', userRouter);
+
+
+
+const multer = require('multer');
+const fs = require('fs');
+
+try {
+  fs.readdirSync('uploads');
+} catch (error) {
+  console.error('uploads 폴더가 없어 uploads 폴더를 생성합니다.');
+  fs.mkdirSync('uploads');
+}
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, done) {
+      done(null, 'uploads/');
+    },
+    filename(req, file, done) {
+      const ext = path.extname(file.originalname);
+      done(null, path.basename(file.originalname, ext) + Date.now() + ext);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 * 1024},
+});
+
+app.get('/upload', (req, res) => {
+  res.sendFile(path.join(__dirname, 'multipart.html'));
+});
+
+app.post('/upload',
+  upload.fields([{ name: 'image1' }, { name: 'image2' }]),
+  (req, res) => {
+    console.log(req.files, req.body);
+    res.send('ok');
+  },
+);
+
+// 위에서 /에 대한 경로로 indexRouter를 지정하였기 때문에 해당 코드 미실행됨
+// app.get('/', (req, res, next) => {
+//   console.log('GET / 요청에서만 실행됩니다.');
+//   next();
+// }, (req, res) => {
+//   throw new Error('에러는 에러 처리 미들웨어로 갑니다.')
+// });
+
+// app.use((err, req, res, next) => {
+//   console.error(err);
+//   res.status(500).send(err.message);
+// });
+
+app.use((req, res, next) => {
+  res.status(404).send('Not Found');
+});
+
+
+app.listen(app.get('port'), () => {
+  console.log(app.get('port'), '번 포트에서 대기 중');
+});
