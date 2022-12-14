@@ -6,7 +6,7 @@ const session = require("express-session");
 const nunjucks = require("nunjucks");
 const dotenv = require("dotenv");
 dotenv.config();
-const pageRouter = require("./routers/page");
+const pageRouter = require("./routes/page");
 
 const app = express();
 app.set('port', process.env.PORT || 8080);
@@ -39,9 +39,10 @@ app.use((req, res, next) => {
 	next(error);
 });
 
-app.use((err, req, res, next) => {ss
+app.use((err, req, res, next) => {
 	res.locals.message = err.message;
-	res.local.error = process.env.NODE_ENV !== 'production' ? err : {};
+	console.log("process.env.NODE_ENV: ",process.env.NODE_ENV);
+	res.locals.error = process.env.NODE_ENV !== 'production' ? err : {};
 	res.status(err.status || 500);
 	res.render('error');
 });

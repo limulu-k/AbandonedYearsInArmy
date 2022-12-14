@@ -3,10 +3,10 @@ const express = require("express");
 const router = express.Router();
 
 router.use((req, res, next) => {
-	res.local.user = null;
-	res.local.followerCount = 0;
-	res.local.followingCount = 0;
-	res.local.followerIdList = [];
+	res.locals.user = null;
+	res.locals.followerCount = 0;
+	res.locals.followingCount = 0;
+	res.locals.followerIdList = [];
 	next();
 });
 
@@ -21,6 +21,9 @@ router.get("/join", (req,res) => {
 router.get("/", (req,res,next) => {
 	const twits = [];
 	res.render("main", {
-		
-	})
+		title: "NodeBird",
+		twits,
+	});
 });
+
+module.exports = router;
