@@ -4,12 +4,12 @@ const {
 
 if (isMainThread) { // 부모일 때
   const threads = new Set();
-  threads.add(new Worker(__filename, {
-    workerData: { start: 1 },
-  }));
-  threads.add(new Worker(__filename, {
-    workerData: { start: 2 },
-  }));
+  var x;
+  for (x = 0; x < 5; x++){
+	  threads.add(new Worker(__filename,{
+		  workerData: {start: x}
+	  }));
+  }
   for (let worker of threads) {
     worker.on('message', message => console.log('from worker', message));
     worker.on('exit', () => {
@@ -21,14 +21,16 @@ if (isMainThread) { // 부모일 때
   }
 } else { // 워커일 때
 	const data = workerData;
-	if (true){
-		if (data.start == 2){
-			let k = 0;
-			for(k;k < 100; k++){
-				console.log("No"+data.start+" threads value: "+k);
-			}
-		}else{
-			console.log("No"+data.start+" threads value: "+data.start+" it's the first worker");
+	if (data.start != 0){
+		let k = 0;
+		let key;
+		if (data.start % 2 == 0){
+			key = 10;
+		}else{key = 100;}
+		for(k;k < key; k++){
+			console.log("No"+data.start+" threads value: "+k);
 		}
+	}else{
+		console.log("No"+data.start+" threads value: "+data.start+" it's the first worker");
 	}
 }
